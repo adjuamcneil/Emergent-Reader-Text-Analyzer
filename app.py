@@ -5,6 +5,11 @@ import re
 from collections import Counter
 from pathlib import Path
 from typing import Callable
+streamlit
+pandas
+spacy
+numpy
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0.tar.gz
 
 # --- Configuration & Setup ---
 st.set_page_config(page_title="DHRI Text Analyzer", layout="wide")
@@ -218,3 +223,4 @@ if text_data:
 else:
 
     st.info("Please enter text to begin analysis.")
+
