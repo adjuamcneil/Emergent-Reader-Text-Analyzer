@@ -10,8 +10,7 @@ streamlit
 pandas
 spacy
 numpy
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
-
+python -m spacy download en_core_web_sm
 # --- Configuration & Setup ---
 st.set_page_config(page_title="ERTA Text Analyzer", layout="wide")
 
