@@ -16,7 +16,6 @@ st.set_page_config(page_title="ERTA Text Analyzer", layout="wide")
 
 @st.cache_resource
 
-
 repo_root = Path("/https://github.com/adjuamcneil/Emergent-Reader-Text-Analyzer.git")  # adjust to your local clone
 csv_path = repo_root / "ERTA_variables.csv"
 
