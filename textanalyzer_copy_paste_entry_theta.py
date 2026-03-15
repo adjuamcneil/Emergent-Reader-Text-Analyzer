@@ -10,7 +10,7 @@ streamlit
 pandas
 spacy
 numpy
-python -m spacy download en_core_web_sm
+#python -m spacy download en_core_web_sm
 # --- Configuration & Setup ---
 st.set_page_config(page_title="ERTA Text Analyzer", layout="wide")
 
