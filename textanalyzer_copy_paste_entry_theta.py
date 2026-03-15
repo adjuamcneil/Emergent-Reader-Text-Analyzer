@@ -7,6 +7,13 @@ from collections import Counter
 import os
 import re
 
+
+repo_root = Path("/path/to/your-repo")  # adjust to your local clone
+csv_path = repo_root / "data" / "myfile.csv"
+
+df = pd.read_csv(csv_path)
+print(df.info())
+
 # Paste the raw text. For texts with multiple paragraphs, users will need to
 # enter each paragraph separately. A new text box appears for each paragraph.
 role = int(input("Select your report format: 1 for Caregiver, 2 for Teacher, 3 for Researcher 4 for All Versions: "))
