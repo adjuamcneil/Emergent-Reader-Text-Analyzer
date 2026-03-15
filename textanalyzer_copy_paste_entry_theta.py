@@ -13,7 +13,7 @@ numpy
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0.tar.gz
 
 # --- Configuration & Setup ---
-st.set_page_config(page_title="DHRI Text Analyzer", layout="wide")
+st.set_page_config(page_title="ERTA Text Analyzer", layout="wide")
 
 @st.cache_resource
 
