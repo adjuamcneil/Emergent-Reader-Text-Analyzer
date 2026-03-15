@@ -8,11 +8,8 @@ import os
 import re
 
 
-repo_root = Path("/path/to/your-repo")  # adjust to your local clone
-csv_path = repo_root / "data" / "myfile.csv"
-
-df = pd.read_csv(csv_path)
-print(df.info())
+repo_root = Path("/https://github.com/adjuamcneil/Emergent-Reader-Text-Analyzer.git")  # adjust to your local clone
+csv_path = repo_root / "ERTA_variables.csv"
 
 # Paste the raw text. For texts with multiple paragraphs, users will need to
 # enter each paragraph separately. A new text box appears for each paragraph.
@@ -339,7 +336,9 @@ token_table_npn = pd.DataFrame(
 # # This codes creates the dataset of word characteristics from multiple
 # databases: dELP, Chee et al.(2020), CMPD, CEFR.
 #os.getcwd("")
-ERTA_variables = pd.read_csv("C:/Users/amcne/OneDrive - Florida State University/FSU/Digital Incubator/DHRI/ERTA_variables.csv")
+ERTA_variables = pd.read_csv(csv_path)
+
+# ERTA_variables = pd.read_csv("C:/Users/amcne/OneDrive - Florida State University/FSU/Digital Incubator/DHRI/ERTA_variables.csv")
 ERTA_variables.rename(columns={"NPhon": "phonemes"}, inplace=True)
 
 #dup_mask = ERTA_variables.duplicated(subset=["word"], keep=False)
