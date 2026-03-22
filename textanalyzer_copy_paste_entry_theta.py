@@ -1,23 +1,13 @@
 # -*- coding: utf-8 -*-
-import streamlit as st
+
 import pandas as pd
-import spacy
-import re
-from collections import Counter
-from pathlib import Path
 from typing import Callable
-streamlit
-pandas
-spacy
-numpy
+import spacy
 #python -m spacy download en_core_web_sm
-# --- Configuration & Setup ---
-st.set_page_config(page_title="ERTA Text Analyzer", layout="wide")
 
-@st.cache_resource
-
-repo_root = Path("/https://github.com/adjuamcneil/Emergent-Reader-Text-Analyzer.git")  # adjust to your local clone
-csv_path = repo_root / "ERTA_variables.csv"
+from collections import Counter
+import os
+import re
 
 # Paste the raw text. For texts with multiple paragraphs, users will need to
 # enter each paragraph separately. A new text box appears for each paragraph.
@@ -32,7 +22,7 @@ custom_stop_words = {
 }
 # If the user does not enter each paragraph separately, the analyzer will count
 # the entire text as one paragraph.
-print("\nIn the text box below, enter each paragraph separately. Press Enter twice (blank line) to finish: \n")
+print("\nPaste your text below.Make their is a carriage return between each paragraph. Press 'Enter' twice (blank line) to finish: \n")
 lines = []
 while True:
     try:
@@ -61,16 +51,16 @@ def split_paragraphs(text_data: str):
 def split_sentences(paragraph: str):
 
     # Normalize internal whitespace
-    para = re.sub(r'[ \t]+', ' ', paragraph.strip())
 
-    # Split on end punctuation followed by whitespace or end of string.
-    # Keep punctuation with the sentence using a capturing group.
-    parts = re.split(r'(?<=[.!?])\s+(?=[^\s])', para)
+    # collapse internal spaces/tabs
+    para = re.sub(r'[ \t]+', ' ', paragraph.strip())
+    # split on end punctuation followed by whitespace; keep punctuation with sentence
+    parts = re.split(r'(?<=[.!?])\s+(?=\S)', para)
+
     # Filter out empty parts
     return [s.strip() for s in parts if s.strip()]
 
 def count_words(sentence: str):
-
     tokens = re.findall(r"\b[\w'-]+\b", sentence, flags=re.UNICODE)
     return len(tokens)
 
@@ -157,8 +147,7 @@ def table_summary_lite(text_data):
 
 # This section categorizes the sentences in the text by type: simple, compound, complex, and
 # compound-complex
-# pip install spacy
-# python -m spacy download en_core_web_sm
+#pip install spacy
 
 try:
     nlp = spacy.load("en_core_web_sm")
@@ -188,8 +177,10 @@ def remove_direct_speech(text: str) -> str:
     Handles straight and curly quotes in a simple way.
     """
     # Remove “...” or "..." spans
+
     text = re.sub(r'“[^”]*”', "", text)
     text = re.sub(r'"[^"]*"', "", text)
+
     return text
 
 def is_finite_verb(tok) -> bool:
@@ -319,7 +310,9 @@ def remove_proper_nouns(text_data: str, custom_stop_words) -> list[str]:
     stripped_text = re.findall(
         r"[A-Za-z]+(?:'[A-Za-z]+)*",
         text_data,
-        flags=re.IGNORECASE)
+        flags=re.IGNORECASE
+    )
+
     custom_stop_words_lower = {w.lower() for w in custom_stop_words}
     npn = [word.lower() for word in stripped_text if word.lower()
     not in custom_stop_words_lower]
@@ -344,9 +337,7 @@ token_table_npn = pd.DataFrame(
 # # This codes creates the dataset of word characteristics from multiple
 # databases: dELP, Chee et al.(2020), CMPD, CEFR.
 #os.getcwd("")
-ERTA_variables = pd.read_csv(csv_path)
-
-# ERTA_variables = pd.read_csv("C:/Users/amcne/OneDrive - Florida State University/FSU/Digital Incubator/DHRI/ERTA_variables.csv")
+ERTA_variables = pd.read_csv("C:/Users/amcne/OneDrive - Florida State University/FSU/Digital Incubator/ERTA/ERTA_variables.csv")
 ERTA_variables.rename(columns={"NPhon": "phonemes"}, inplace=True)
 
 #dup_mask = ERTA_variables.duplicated(subset=["word"], keep=False)
@@ -505,23 +496,29 @@ grade_level_max = merged_npn.grade_eq.max()
 #This code returns the percentage of words within the first 1000 words based on
 # standardized word frequency.
 def first_1000(df):
-  Q1 = len(merged_npn.loc[merged_npn['tasa_sfi'] >= 65, 'word']
-           )/len(merged_npn)*100
-  Q2 = (len(merged_npn.loc[(merged_npn['tasa_sfi'] >= 62) &
-   (merged_npn['tasa_sfi'] < 65), 'word'])/len(merged_npn))*100
-  Q3 = (len(merged_npn.loc[(merged_npn['tasa_sfi'] >= 60.5) &
-   (merged_npn['tasa_sfi'] < 62), 'word'])/len(merged_npn))*100
-  Q4 = (len(merged_npn.loc[(merged_npn['tasa_sfi'] >= 59) &
-   (merged_npn['tasa_sfi'] < 60.5), 'word'])/len(merged_npn))*100
-  #df.loc[df["frequency"] > 65, "word"]
-  K1_plus = len(merged_npn.loc[merged_npn['tasa_sfi'] < 59, 'word']
-                )/len(merged_npn)*100
-  print("\nWord frequency profile based on the first 1000 words: \n")
-  print(round(Q1, 2), "% Q1")
-  print(round(Q2, 2), "% Q2")
-  print(round(Q3, 2), "% Q3")
-  print(round(Q4, 2), "% Q4")
-  print(round(K1_plus, 2), "% >K1")
+    total = len(merged_npn)
+    if total == 0:
+        print("\nWord frequency profile based on the first 1000 words:\n")
+        print("0.00 % Q1")
+        print("0.00 % Q2")
+        print("0.00 % Q3")
+        print("0.00 % Q4")
+        print("0.00 % >K1")
+        return
+
+    Q1 = len(merged_npn.loc[merged_npn['tasa_sfi'] >= 65, 'word'])/total*100
+    Q2 = (len(merged_npn.loc[(merged_npn['tasa_sfi'] >= 62) & (merged_npn['tasa_sfi'] < 65), 'word'])/total)*100
+    Q3 = (len(merged_npn.loc[(merged_npn['tasa_sfi'] >= 60.5) & (merged_npn['tasa_sfi'] < 62), 'word'])/total)*100
+    Q4 = (len(merged_npn.loc[(merged_npn['tasa_sfi'] >= 59) & (merged_npn['tasa_sfi'] < 60.5), 'word'])/total)*100
+    K1_plus = len(merged_npn.loc[merged_npn['tasa_sfi'] < 59, 'word'])/total*100
+
+    print("\nWord frequency profile based on the first 1000 words: \n")
+    print(round(Q1, 2), "% Q1")
+    print(round(Q2, 2), "% Q2")
+    print(round(Q3, 2), "% Q3")
+    print(round(Q4, 2), "% Q4")
+    print(round(K1_plus, 2), "% >K1")
+
 
 # This code identifies words in the text that use Level 1 letter-sound
 # correspondences (i.e., alphabetic)
@@ -759,7 +756,6 @@ summary_table_3 = pd.DataFrame({"Word Features": ['Letters', 'Phonemes', 'Syllab
                               "Maximum": [letters_max, phonemes_max, syllables_max, aoa_max, grade_level_max]})
 summary_table_3 = summary_table_3.round(1)
 
-merged_npn.columns
 merged_npn["comp_score"] = (merged_npn["Length"]*.484) + (
     merged_npn["AoA_Kuper"]*.316) + (
         merged_npn["NSyll"]*.05) + (
@@ -814,6 +810,16 @@ most_complex_2 = (
 ##
 #
 # --- your existing report functions (unchanged, except one small f-string fix) ---
+
+def _safe_pct(numerator: int, denominator: int) -> float:
+    """Return a percentage safely; 0.0 if denominator is 0."""
+    if denominator == 0:
+        return 0.0
+    return round((numerator / denominator) * 100, 2)
+den = len(merged_npn)
+
+if den == 0:
+    print("\n(No decodability percentages available: the word list is empty for this input.)")
 
 def researcher_report():
     print("\nResearcher Report")
@@ -894,15 +900,18 @@ def teacher_report():
     print("\nWords to preteach:", ", ".join(most_complex_2))
     print("\nLevel 1: words that can be decoded using knowledge of the alphabet")
     print("\nNumber of Level 1 decodable words (types):", count_words_with_1)
-    print("Percentage of Level 1 decodable words (types):", round((count_words_with_1/len(merged_npn))*100, 2))
+    print("Percentage of Level 1 words:", _safe_pct(count_words_with_1, den))
+    #print("Percentage of Level 1 decodable words (types):", round((count_words_with_1/len(merged_npn))*100, 2))
     print("Some of the Level 1 words in this text: ", "  ".join(words_with_all_matches['word'].drop_duplicates().head(10).astype(str)))
     print("\nLevel 2: words that include digraphs, trigraphs, diphthongs, single vowel+R, and vowel teams")
     print("\nNumber of Level 2 decodable words (types):", count_words_with_1_L2)
-    print("Percentage of Level 2 decodable words (types):", round((count_words_with_1_L2/len(merged_npn))*100, 2))
+    print("Percentage of Level 2 words:", _safe_pct(count_words_with_1_L2, den))
+    #print("Percentage of Level 2 decodable words (types):", round((count_words_with_1_L2/len(merged_npn))*100, 2))
     print("Some of the Level 2 words in this text: ","  ".join(words_with_all_matches_L2['word'].drop_duplicates().head(10).astype(str)))
     print("\nLevel 3: words that include irregular vowel sounds, schwa, vowel teams+R, and irregular vowel teams")
     print("\nNumber Level 3 decodable words (types):", (len(words_with_no_match_L2)))
-    print("Percentage of Level 3 decodable words (types):", round((len(words_with_no_match_L2)/len(merged_npn))*100, 2))
+
+    print("Percentage of Level 3 words:", _safe_pct(len(words_with_no_match_L2), den))
     print("Some of the Level 3 words in this text: ", "  ".join(words_with_no_match_L2['word'].drop_duplicates().head(10).astype(str)))
 
 def caregiver_report():
@@ -937,13 +946,16 @@ def caregiver_report():
     #first_1000(merged_npn)
     print("\nWords to review before reading: ", ", ".join(most_complex_2))
     print("\nLevel 1: words that can be decoded using knowledge of the alphabet")
-    print("Percentage of Level 1 words:", round((count_words_with_1/len(merged_npn))*100, 2))
+
+    print("Percentage of Level 1 words:", _safe_pct(count_words_with_1, den))
+    #print("Percentage of Level 1 words:", round((count_words_with_1/len(merged_npn))*100, 2))
     print("Some of the Level 1 words in this text: ", "  ".join(words_with_all_matches['word'].drop_duplicates().head(5).astype(str)))
     print("\nLevel 2: words that include digraphs, trigraphs, diphthongs, single vowel+R, and vowel teams")
     print("Percentage of Level 2 words:", round((count_words_with_1_L2/len(merged_npn))*100, 2))
     print("Some of the Level 2 words in this text: ","  ".join(words_with_all_matches_L2['word'].drop_duplicates().head(5).astype(str)))
     print("\nLevel 3: words that include irregular vowel sounds, schwa, vowel teams+R, and irregular vowel teams")
-    print("Percentage of Level 3 words:", round((len(words_with_no_match_L2)/len(merged_npn))*100, 2))
+    print("Percentage of Level 3 words:", _safe_pct(len(words_with_no_match_L2), den))
+    #print("Percentage of Level 3 words:", round((len(words_with_no_match_L2)/len(merged_npn))*100, 2))
     print("Some of the Level 3 words in this text: ", "  ".join(words_with_no_match_L2['word'].drop_duplicates().head(5).astype(str)))
 
 
