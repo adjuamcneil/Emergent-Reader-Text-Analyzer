@@ -337,7 +337,7 @@ token_table_npn = pd.DataFrame(
 # # This codes creates the dataset of word characteristics from multiple
 # databases: dELP, Chee et al.(2020), CMPD, CEFR.
 #os.getcwd("")
-ERTA_variables = pd.read_csv("https://raw.githubusercontent.com/<your-username>/Emergent-Reader-Text-Analyzer/main/ERTA_variables.csv")
+ERTA_variables = pd.read_csv("https://raw.githubusercontent.com/adjuamcneil/Emergent-Reader-Text-Analyzer/main/ERTA_variables.csv")
 #dup_mask = ERTA_variables.duplicated(subset=["word"], keep=False)
 #duplicates = ERTA_variables[dup_mask].sort_values(["word"])
 
